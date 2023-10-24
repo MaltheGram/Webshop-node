@@ -1,0 +1,162 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+    "title": "Node Store API",
+        "version": "1.0.0",
+        "description": "A simple Node Store API"
+},
+    "tags": [
+    {
+        "name": "Categories",
+        "description": "Operations related to categories"
+    },
+    {
+        "name": "OrderStatuses",
+        "description": "Operations related to order statuses"
+    },
+    {
+        "name": "Products",
+        "description": "Operations related to products"
+    },
+    {
+        "name": "Inventories",
+        "description": "Operations related to inventories"
+    },
+    {
+        "name": "Users",
+        "description": "Operations related to users"
+    },
+    {
+        "name": "Addresses",
+        "description": "Operations related to addresses"
+    },
+    {
+        "name": "Payments",
+        "description": "Operations related to payments"
+    },
+    {
+        "name": "Orders",
+        "description": "Operations related to orders"
+    },
+    {
+        "name": "OrderLineItems",
+        "description": "Operations related to order line items"
+    },
+    {
+        "name": "PaymentDetails",
+        "description": "Operations related to payment details"
+    }
+],
+    "paths": {
+    "/categories": {
+        "get": {
+            "tags": ["Categories"],
+                "summary": "Retrieve a list of categories",
+                "responses": {
+                "200": {
+                    "description": "List of categories"
+                }
+            }
+        }
+    },
+    "/order-statuses": {
+        "get": {
+            "tags": ["OrderStatuses"],
+                "summary": "Retrieve a list of order statuses",
+                "responses": {
+                "200": {
+                    "description": "List of order statuses"
+                }
+            }
+        }
+    },
+    "/products": {
+        "get": {
+            "tags": ["Products"],
+                "summary": "Retrieve a list of products",
+                "responses": {
+                "200": {
+                    "description": "List of products"
+                }
+            }
+        }
+    },
+    "/inventories": {
+        "get": {
+            "tags": ["Inventories"],
+                "summary": "Retrieve a list of inventories",
+                "responses": {
+                "200": {
+                    "description": "List of inventories"
+                }
+            }
+        }
+    },
+    "/users": {
+        "get": {
+            "tags": ["Users"],
+                "summary": "Retrieve a list of users",
+                "responses": {
+                "200": {
+                    "description": "List of users"
+                }
+            }
+        }
+    },
+    "/addresses": {
+        "get": {
+            "tags": ["Addresses"],
+                "summary": "Retrieve a list of addresses",
+                "responses": {
+                "200": {
+                    "description": "List of addresses"
+                }
+            }
+        }
+    },
+    "/payments": {
+        "get": {
+            "tags": ["Payments"],
+                "summary": "Retrieve a list of payments",
+                "responses": {
+                "200": {
+                    "description": "List of payments"
+                }
+            }
+        }
+    },
+    "/orders": {
+        "get": {
+            "tags": ["Orders"],
+                "summary": "Retrieve a list of orders",
+                "responses": {
+                "200": {
+                    "description": "List of orders"
+                }
+            }
+        }
+    },
+    "/order-line-items": {
+        "get": {
+            "tags": ["OrderLineItems"],
+                "summary": "Retrieve a list of order line items",
+                "responses": {
+                "200": {
+                    "description": "List of order line items"
+                }
+            }
+        }
+    },
+    "/payment-details": {
+        "get": {
+            "tags": ["PaymentDetails"],
+                "summary": "Retrieve a list of payment details",
+                "responses": {
+                "200": {
+                    "description": "List of payment details"
+                }
+            }
+        }
+    }
+}
+}

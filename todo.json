@@ -1,0 +1,20 @@
+{
+  "Daniel": {
+    "todo": [
+      "Category",
+      "Product",
+      "Inventory",
+      "Payment",
+      "Payment Details"
+    ]
+  },
+  "Malthe": {
+    "todo": [
+      "User",
+      "Address",
+      "Order",
+      "Order Status",
+      "Order Line Item"
+    ]
+  }
+}

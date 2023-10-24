@@ -1,23 +1,21 @@
 import express from 'express';
-import User from "./models.js";
+import swaggerUi from 'swagger-ui-express';
+
 
 const app = express();
 const PORT = 3000;
 
+app.get("/", (req, res) => {
+    res.send({message: "Please go to /api-docs"})
+})
+
 app.use(express.json());
 
-const userRouter = express.Router();
 
-userRouter.get('/', async (req, res) => {
-    try {
-        const users = await User.findAll();
-        res.json(users);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
+import userRouter from "./routers/userRouter.js";
+app.use(userRouter);
 
-app.use('/users', userRouter);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(""));
 
 app.listen(PORT, () => {
     console.log(`Server started on http://localhost:${PORT}`);
