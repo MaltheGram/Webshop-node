@@ -71,6 +71,8 @@ async function insertDummyData() {
 
     // Inserting Order Status
     const status1 = await models.OrderStatus.create({ name: 'Order received' });
+    const status2 = await models.OrderStatus.create({ name: 'In Progress' });
+    const status3 = await models.OrderStatus.create({ name: 'Order delivered' });
 
     // Inserting Payment
     const payment1 = await models.Payment.create({ total_price: 1525, userId: user1.id });
