@@ -75,6 +75,17 @@ class OrderService {
                     productId: product.productId,
                     quantity: product.quantity || params.quantity
                 }, {transaction})
+
+                const inventory = await model.Inventory.findOne({
+                        productId: product.id
+                })
+
+                await model.Inventory.update({
+                    where: {
+                        productId: inventory.id
+                    },
+                    stock: inventory.stock -= product.quantity || params.quantity
+                })
             }
             await transaction.commit()
 
