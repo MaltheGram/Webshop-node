@@ -1,0 +1,24 @@
+{
+    "editor.formatOnSave": true,
+    "[javascript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "prettier.bracketSpacing": true,
+    "prettier.arrowParens": "avoid",
+    "prettier.trailingComma": "none",
+    "prettier.endOfLine": "auto",
+    "prettier.semi": false,
+    "prettier.singleQuote": false,
+    "prettier.printWidth": 80,
+    "prettier.tabWidth": 2,
+    "prettier.useTabs": true,
+    "prettier.overrides": [
+      {
+        "files": "*.js",
+        "options": {
+          "parser": "babel"
+        }
+      }
+    ]
+  }
+  

@@ -1,4 +1,4 @@
-import model from "../models.js"
+import model from "../models/models.js"
 
 class UserService {
 

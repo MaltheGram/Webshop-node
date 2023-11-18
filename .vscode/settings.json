@@ -1,0 +1,20 @@
+{
+    "files.autoSave": "afterDelay",
+    "editor.wordWrap": "wordWrapColumn",
+    "editor.cursorStyle": "line",
+    "editor.autoClosingQuotes": "languageDefined",
+    "editor.bracketPairColorization.independentColorPoolPerBracketType": true,
+    "editor.codeActionsOnSave": {
+        "source.fixAll": true,
+        "source.organizeImports": true
+    },
+    "editor.formatOnSave": true,
+    "prettier.bracketSpacing": true,
+    "prettier.semi": false,
+    "prettier.printWidth": 80,
+    "prettier.tabWidth": 4,
+    "prettier.useTabs": false,
+    "[javascript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    }
+}

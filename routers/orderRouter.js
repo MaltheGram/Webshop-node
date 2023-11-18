@@ -1,5 +1,5 @@
 import {Router} from "express"
-import OrderService from "../service/OrderService.js"
+import OrderService from "../sql/service/OrderService.js"
 
 const router = Router()
 

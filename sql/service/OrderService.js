@@ -1,4 +1,4 @@
-import model, {sequelize} from "../models.js"
+import model, {sequelize} from "../models/models.js"
 
 
 class OrderService {
