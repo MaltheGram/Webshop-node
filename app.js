@@ -2,8 +2,6 @@ import express from "express";
 import swaggerUi from "swagger-ui-express";
 import swaggerDocs from "./docs/swagger.json" assert { type: "json" };
 import connectDatabase from "./mongodb/database.js";
-import orderRouter from "./routers/orderRouter.js";
-import userRouter from "./routers/userRouter.js";
 
 const app = express();
 const PORT = 3000;
@@ -16,8 +14,24 @@ app.get("/", (req, res) => {
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-app.use(userRouter);
-app.use(orderRouter);
+// SQL Routers
+import orderRouterSQL from "./sql/routers/orderRouter.js";
+import userRouterSQL from "./sql/routers/userRouter.js";
+
+app.use(userRouterSQL);
+app.use(orderRouterSQL);
+
+// MongoDB Routers
+import orderRouterMongo from "./mongodb/routers/orderRouter.js";
+import userRouterMongo from "./mongodb/routers/userRouter.js";
+
+app.use(userRouterMongo);
+app.use(orderRouterMongo);
+
+// GraphQl Routers
+import userRouterGraphql from "./graphql/routers/userRouter.js";
+
+app.use(userRouterGraphql);
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 

@@ -1,0 +1,20 @@
+Malthe: 
+    Mongo:
+        1. Orders og users skal knyttes sammen.
+        2. En user skal have at array af alle Orders
+        3. En user skal have et array af alle Payments
+        4. GraphQL
+
+
+Daniel:
+        Mongo:
+            1. CRUD Product
+            2. GraphQL Orders, orderItems følger nok med i order.
+            3. GraphQL Payment
+            4. Kryptering 
+
+
+Sammen:
+    Rapport
+    Swagger UI ( Måske )
+    Database bruger rettigheder

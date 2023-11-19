@@ -2,42 +2,47 @@ import Joi from "joi";
 import mongoose from "mongoose";
 const { Schema } = mongoose;
 
-
-const userSchema = new Schema({
-  firstName: {
-    type: String,
-  },
-  lastName: {
-    type: String,
-  },
-  password: {
-    type: String,
-  },
-  email: {
-    type: String,
-  },
-  phoneNumber: {
-    type: String,
-  },
-  address: {
-    zip: {
+const userSchema = new Schema(
+  {
+    firstName: {
       type: String,
     },
-    streetName: {
+    lastName: {
       type: String,
     },
-    streetNumber: {
+    password: {
       type: String,
     },
-    city: {
+    email: {
       type: String,
+    },
+    phoneNumber: {
+      type: String,
+    },
+    address: {
+      zip: {
+        type: String,
+      },
+      streetName: {
+        type: String,
+      },
+      streetNumber: {
+        type: String,
+      },
+      city: {
+        type: String,
+      },
+    },
+    payment: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Payment",
     },
   },
-  payment: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Payment",
+  {
+    versionKey: false,
+    timestamps: true,
   },
-});
+);
 const validateUser = (user) => {
   const schema = Joi.object({
     firstName: Joi.string().required(),
@@ -60,26 +65,36 @@ const validateUser = (user) => {
   return schema.validate(user);
 };
 
-const productSchema = new Schema({
-  description: {
-    type: String,
+const productSchema = new Schema(
+  {
+    name: {
+      type: String,
+    },
+    description: {
+      type: String,
+    },
+    price: {
+      type: Number,
+    },
+    imageUrl: {
+      type: String,
+    },
+    category: {
+      type: String,
+    },
+    quantityInStock: {
+      type: Number,
+    },
   },
-  price: {
-    type: Number,
+  {
+    versionKey: false,
+    timestamps: true,
   },
-  imageUrl: {
-    type: String,
-  },
-  category: {
-    type: Schema.Types.ObjectId,
-    ref: "Category",
-  },
-  quantityInStock: {
-    type: Number,
-  },
-});
+);
+
 const validateProduct = (product) => {
   const schema = Joi.object({
+    name: Joi.string().required(),
     description: Joi.string().required(),
     price: Joi.number().precision(2).required(),
     imageUrl: Joi.string().uri().optional(),
@@ -90,55 +105,76 @@ const validateProduct = (product) => {
   return schema.validate(product);
 };
 
-const orderSchema = new Schema({
-  orderStatus: {
-    type: String,
-    enum: ["Order received", "In progress", "Order delivered", "Cancelled"],
-  },
-  orderItems: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "Product",
-    },
-  ],
-  payment: {
-    type: Schema.Types.ObjectId,
-    ref: "Payment",
-  },
+const orderItemSchema = new Schema({
+  product: { type: Schema.Types.ObjectId, ref: "Product" },
+  description: { type: String, required: true },
+  imageUrl: { type: String, required: true },
+  price: { type: Number, required: true },
+  category: { type: String, required: true },
+  quantity: { type: Number, required: true },
 });
+
+const orderSchema = new Schema(
+  {
+    orderStatus: {
+      type: String,
+      enum: ["Order received", "In progress", "Order delivered", "Cancelled"],
+    },
+    orderItems: [orderItemSchema],
+    payment: {
+      transactionNumber: String,
+      cardNumber: String,
+    },
+  },
+  {
+    versionKey: false,
+    timestamps: true,
+  },
+);
 const validateOrder = (order) => {
+  order.orderStatus = order.orderStatus || "Order received";
+
+  const objectIdPattern = /^[0-9a-fA-F]{24}$/; // Pattern for validating MongoDB ObjectId
+
   const schema = Joi.object({
     orderStatus: Joi.string()
       .valid("Order received", "In progress", "Order delivered", "Cancelled")
       .required(),
-    orderItems: Joi.array().items(Joi.string().required()).required(),
-    payment: Joi.string().optional(),
+    orderItems: Joi.array()
+      .items(
+        Joi.object({
+          id: Joi.string().pattern(objectIdPattern).required(),
+          quantity: Joi.number().integer().min(1).required(),
+        }),
+      )
+      .required(),
+    payment: {
+      transactionNumber: Joi.string().optional(),
+      cardNumber: Joi.string().creditCard().optional(),
+    },
   });
 
   return schema.validate(order);
 };
 
-const categorySchema = new Schema({
-  name: {
-    type: String,
+const paymentSchema = new Schema(
+  {
+    transactionNumber: {
+      type: String,
+    },
+    cardNumber: {
+      type: String,
+    },
+    order: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Order",
+    },
   },
-});
-const validateCategory = (category) => {
-  const schema = Joi.object({
-    name: Joi.string().required(),
-  });
-
-  return schema.validate(category);
-};
-
-const paymentSchema = new Schema({
-  transactionNumber: {
-    type: String,
+  {
+    versionKey: false,
+    timestamps: true,
   },
-  cardNumber: {
-    type: String,
-  },
-});
+);
 const validatePayment = (payment) => {
   const schema = Joi.object({
     transactionNumber: Joi.string().required(),
@@ -151,16 +187,13 @@ const validatePayment = (payment) => {
 const UserModel = mongoose.model("User", userSchema);
 const ProductModel = mongoose.model("Product", productSchema);
 const OrderModel = mongoose.model("Order", orderSchema);
-const CategoryModel = mongoose.model("Category", categorySchema);
 const PaymentModel = mongoose.model("Payment", paymentSchema);
 
 export {
-  CategoryModel,
   OrderModel,
   PaymentModel,
   ProductModel,
   UserModel,
-  validateCategory,
   validateOrder,
   validatePayment,
   validateProduct,

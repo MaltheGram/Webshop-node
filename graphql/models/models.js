@@ -43,8 +43,8 @@ const RootQuery = new GraphQLObjectType({
       async resolve(parent, args) {
         const user = await UserModel.findById(args.id);
         return user.address;
-      }
-    }
+      },
+    },
   },
 });
 
