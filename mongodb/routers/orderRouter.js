@@ -2,11 +2,13 @@ import { Router } from "express";
 import mongoose from "mongoose";
 import {
   OrderModel,
-  PaymentModel,
-  ProductModel,
   validateOrder,
   validatePayment,
 } from "../models/models.js";
+import OrderService from "../service/orderService.js";
+import PaymentService from "../service/paymentService.js";
+import ProductService from "../service/productService.js";
+import UserService from "../service/userService.js";
 
 const router = Router();
 
@@ -20,7 +22,7 @@ router.get(`${ordersMongo}`, async (req, res) => {
   }
 });
 
-router.post(`${ordersMongo}`, async (req, res) => {
+router.post(`${ordersMongo}/:userId`, async (req, res) => {
   const { error } = validateOrder(req.body);
   if (error)
     return res.status(400).send({ validationError: error.details[0].message });
@@ -30,47 +32,37 @@ router.post(`${ordersMongo}`, async (req, res) => {
 
   try {
     for (const item of orderItemRequests) {
-      const product = await ProductModel.findOne({ _id: item.id });
-      if (!product) {
-        return res.status(400).send(`Product with ID ${item.id} not found`);
-      }
-
-      if (product.quantityInStock < item.quantity) {
-        return res
-          .status(400)
-          .send(`Not enough stock for product ID ${item.id}`);
-      }
-
-      product.quantityInStock -= item.quantity;
-      await product.save();
+      await ProductService.updateProductStock(item.id, item.quantity);
+      const product = await ProductService.findProductById(item.id);
 
       const { description, price, imageUrl, category } = product.toObject();
-
-      const orderDetail = {
+      orderItems.push({
         description,
         price,
         imageUrl,
         category,
         quantity: item.quantity,
-      };
-
-      orderItems.push(orderDetail);
-      console.log(item);
+      });
     }
 
     const order = new OrderModel({ orderItems });
-    console.log(order);
     await order.save();
+
+    //await UserService.addUserOrder(req.params.userId, order._id);
+    const updatedUser = await UserService.addUserOrder(
+      req.params.userId,
+      order,
+    );
+
     res.status(200).send({ order: order });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
-// Only used to update payment, since we don't want to update the order iteself.
-router.put(`${ordersMongo}/:id`, async (req, res) => {
+router.put(`${ordersMongo}/:orderId/:userId`, async (req, res) => {
   const session = await mongoose.startSession();
-  session.startTransaction(); 
+  session.startTransaction();
 
   try {
     const { error } = validatePayment(req.body);
@@ -80,11 +72,10 @@ router.put(`${ordersMongo}/:id`, async (req, res) => {
       return res.status(400).send(error.details[0].message);
     }
 
-    // Check if a payment with the same details already exists
-    const existingPayment = await PaymentModel.findOne({
-      transactionNumber: req.body.transactionNumber,
-      cardNumber: req.body.cardNumber,
-    }).session(session);
+    const existingPayment = await PaymentService.checkExistingPayment(
+      req.params.orderId,
+      session,
+    );
 
     if (existingPayment) {
       await session.abortTransaction();
@@ -92,33 +83,38 @@ router.put(`${ordersMongo}/:id`, async (req, res) => {
       return res.status(400).send({ message: "Payment already exists." });
     }
 
-    const updatedOrder = await OrderModel.findByIdAndUpdate(
-      req.params.id,
-      { payment: req.body.paymentId },
-      { new: true, session },
+    const updatedOrder = await OrderService.updateOrder(
+      req.params.orderId,
+      req.body, // Assuming req.body contains necessary payment details
+      session,
     );
 
     if (!updatedOrder) {
       throw new Error("Order not found");
     }
 
-    const newPayment = await PaymentModel.create(
-      [
-        {
-          transactionNumber: req.body.transactionNumber,
-          cardNumber: req.body.cardNumber,
-          order: updatedOrder._id,
-        },
-      ],
-      { session },
+    const newPayment = await PaymentService.createPayment(
+      req.body.transactionNumber,
+      req.body.cardNumber,
+      updatedOrder._id,
+      session,
     );
+
+    const updatedUser = await PaymentService.updateUserWithPayment(
+      req.params.userId,
+      newPayment[0]._id, // Assuming newPayment is an array
+      session,
+    );
+
+    if (!updatedUser) {
+      throw new Error("User not found");
+    }
 
     await session.commitTransaction();
     session.endSession();
     res.json({
-      message: `MongoDB order updated.`,
-      order: updatedOrder,
-      payment: newPayment,
+      message: `MongoDB order and user updated.`,
+      user: updatedUser,
     });
   } catch (error) {
     await session.abortTransaction();
