@@ -30,8 +30,8 @@ app.use(orderRouterMongo);
 
 // GraphQl Routers
 import userRouterGraphql from "./graphql/routers/userRouter.js";
-
 app.use(userRouterGraphql);
+
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
