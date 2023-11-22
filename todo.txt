@@ -8,7 +8,6 @@ Malthe:
 
 Daniel:
         Mongo:
-            1. CRUD Product
             2. GraphQL Orders, orderItems følger nok med i order.
             3. GraphQL Payment
             4. Kryptering 
