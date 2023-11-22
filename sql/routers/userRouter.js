@@ -29,11 +29,24 @@ router.get(`${usersSql}/:id`, async (req, res) => {
 router.post(`${usersSql}`, async (req, res) => {
   try {
     await UserService.create(req.body);
-    res.status(200).json({ message: "User created in MySQL." });
+    res.status(200).json({ message: "User created in MySQL."});
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
+
+router.post(`${usersSql}/signin`, async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await UserService.signin(email, password);
+
+    res.json({ message: 'Sign-in successful', user });
+  } catch (error) {
+    res.status(401).json({ error: error.message });
+  }
+});
+
 
 router.put(`${usersSql}/:id`, async (req, res) => {
   try {

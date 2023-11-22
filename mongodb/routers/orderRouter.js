@@ -1,12 +1,6 @@
 import { Router } from "express";
 import mongoose from "mongoose";
-import {
-  OrderModel,
-  PaymentModel,
-  ProductModel,
-  validateOrder,
-  validatePayment,
-} from "../models/models.js";
+import { OrderModel, validateOrder, validatePayment } from "../models/models.js";
 
 const router = Router();
 
