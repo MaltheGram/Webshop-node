@@ -1,3 +1,4 @@
+import { driver as neo4jDriver } from "../database.js";
 import { createCategoryNode } from "../nodes/categoryNode.js";
 import { createInventoryNode } from "../nodes/createInventoryNode.js";
 import { createProductNode } from "../nodes/productNode.js";

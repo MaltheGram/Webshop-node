@@ -1,3 +1,5 @@
+import { driver as neo4jDriver } from "../database.js";
+
 const createCategoryNode = async (category) => {
     const session = neo4jDriver.session();
     try {
