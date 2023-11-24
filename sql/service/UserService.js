@@ -1,4 +1,5 @@
-import model from "../models/models.js"
+import bcrypt from 'bcrypt';
+import model from "../models/models.js";
 
 class UserService {
 
@@ -13,27 +14,66 @@ class UserService {
         return await model.User.findByPk(id)
     }
     static create = async (params) => {
-        // Start a transaction
-        const transaction = await model.sequelize.transaction();
-
-        try {
-            const user = await model.User.create(params, {transaction})
-            const userId = user.id;
-
-            const addressParams = {
-                ...params.Address,
-                userId: userId
-            };
-
-            await model.Address.create(addressParams, {transaction})
-
-            await transaction.commit();
-
-        } catch (error) {
-            await transaction.rollback();
-            throw error
+        console.log('Received Params:', params);
+    
+        const existingUser = await model.User.findOne({
+          where: {
+            email: params.email,
+          },
+        });
+    
+        if (existingUser) {
+          throw new Error('Email already exists');
         }
-    }
+        const hashedPassword = await bcrypt.hash(params.password, 10);
+        const transaction = await model.sequelize.transaction();
+        try {
+          const user = await model.User.create({
+            ...params,
+            password: hashedPassword,
+          }, { transaction });
+    
+          const userId = user.id;
+    
+          const addressParams = {
+            ...params.Address,
+            userId: userId,
+          };
+    
+          await model.Address.create(addressParams, { transaction });
+    
+          await transaction.commit();
+        } catch (error) {
+          await transaction.rollback();
+          throw error;
+        }
+      }
+
+      static signin = async (email, password) => {
+        const user = await model.User.findOne({
+          where: {
+            email: email,
+          },
+        });
+    
+        if (!user) {
+          throw new Error('User or password incorrect');
+        }
+
+        const passwordMatch = await bcrypt.compare(password, user.password);
+    
+        if (!passwordMatch) {
+          throw new Error('User or password incorrect');
+        }
+        return {
+          id: user.id,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          phone_number: user.phone_number,
+        };
+      };
+
     static update = async (userId, updateData) => {
         try {
             const user = await model.User.findByPk(userId);

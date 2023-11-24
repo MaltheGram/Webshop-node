@@ -1,6 +1,8 @@
-import model from "./models.js";
+import model from "../models/models.js";
 
 class ProductService {
+    constructor() {}
+
     static getAllProducts = async () => {
         return await model.Product.findAll();
     }
@@ -10,13 +12,13 @@ class ProductService {
     }
 
     static getProductsByCategoryId = async (categoryId) => {
-        return await model.Product.findAll({ where: { fk_category_id: categoryId } });
+        return await model.Product.findAll({ where: { categoryId: categoryId } });
     }
 
     static createProduct = async (params) => {
         const transaction = await model.sequelize.transaction();
         try {
-            const product = await model.Product.create(params, { transaction })
+            const product = await model.Product.create(params, { transaction });
             const productId = product.id;
 
             const inventoryParams = {
@@ -24,13 +26,12 @@ class ProductService {
                 productId: productId
             };
 
-            await model.Inventory.create(inventoryParams, { transaction })
+            await model.Inventory.create(inventoryParams, { transaction });
 
             await transaction.commit();
-
         } catch (error) {
             await transaction.rollback();
-            throw error
+            throw error;
         }
     }
 

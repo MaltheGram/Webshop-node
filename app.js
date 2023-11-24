@@ -16,22 +16,25 @@ app.use(express.json());
 
 // SQL Routers
 import orderRouterSQL from "./sql/routers/orderRouter.js";
+import productRouterSQL from "./sql/routers/productRouter.js";
 import userRouterSQL from "./sql/routers/userRouter.js";
 
 app.use(userRouterSQL);
 app.use(orderRouterSQL);
+app.use(productRouterSQL)
 
 // MongoDB Routers
 import orderRouterMongo from "./mongodb/routers/orderRouter.js";
+import productRouterMongo from "./mongodb/routers/productRouter.js";
 import userRouterMongo from "./mongodb/routers/userRouter.js";
 
 app.use(userRouterMongo);
 app.use(orderRouterMongo);
+app.use(productRouterMongo)
 
 // GraphQl Routers
-import userRouterGraphql from "./graphql/routers/userRouter.js";
 
-app.use(userRouterGraphql);
+
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 

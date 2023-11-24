@@ -197,12 +197,12 @@ const OrderModel = mongoose.model("Order", orderSchema);
 const PaymentModel = mongoose.model("Payment", paymentSchema);
 
 export {
-  OrderModel,
-  PaymentModel,
-  ProductModel,
-  UserModel,
-  validateOrder,
-  validatePayment,
-  validateProduct,
-  validateUser,
+    OrderModel,
+    PaymentModel,
+    ProductModel,
+    UserModel,
+    validateOrder,
+    validatePayment,
+    validateProduct,
+    validateUser
 };

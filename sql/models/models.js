@@ -72,7 +72,7 @@ User.init(
   {
     firstName: DataTypes.STRING(40),
     lastName: DataTypes.STRING(40),
-    password: DataTypes.STRING(40),
+    password: DataTypes.STRING(150),
     email: DataTypes.STRING(40),
     phone_number: DataTypes.STRING(100),
   },

@@ -1,3 +1,4 @@
+import bcrypt from "bcrypt";
 import { Router } from "express";
 import { UserModel, validateUser } from "../models/models.js";
 
@@ -27,13 +28,46 @@ router.post(`${usersMongo}`, async (req, res) => {
 
   if (error) return res.status(400).send(error.details[0].message);
 
-  const user = new UserModel(req.body);
+  const existingUser = await UserModel.findOne({ email: req.body.email });
+  if (existingUser) {
+    return res.status(400).send("Email already exists.");
+  }
+
+  const hashedPassword = await bcrypt.hash(req.body.password, 10);
+
+  const user = new UserModel({
+    ...req.body,
+    password: hashedPassword,
+  });
 
   try {
     await user.save();
     res.status(200).send({ message: "User created in MongoDB" });
   } catch (error) {
     res.status(500).send({ data: error.message });
+  }
+});
+
+router.post(`${usersMongo}/signin`, async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await UserModel.findOne({ email });
+
+    if (!user) {
+      return res.status(401).json({ message: "Email or password incorrect" });
+    }
+
+    const passwordMatch = await bcrypt.compare(password, user.password);
+
+    if (!passwordMatch) {
+      return res.status(401).json({ message: "Email or password incorrect" });
+    }
+
+    res.status(200).json({ message: "Sign in successful" });
+
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 
