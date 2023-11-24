@@ -22,3 +22,4 @@ const createInventoryNode = async (inventory) => {
     await session.close();
   }
 };
+export { createInventoryNode };
