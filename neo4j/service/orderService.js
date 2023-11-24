@@ -14,7 +14,7 @@ const createOrderWithRelationToUser = async (order, user, product) => {
                 CREATE (o)-[r:CONTAINS]->(p)
                 CREATE (u)-[r:HAS]->(o)
                 RETURN r`,
-      { email: user.email, id: order.id },
+      { email: user.email, id: order.id, productid: product.id },
     );
     await txc.commit();
 
