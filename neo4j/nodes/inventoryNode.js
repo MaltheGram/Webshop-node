@@ -1,4 +1,4 @@
-import { neo4j as neo4jDriver } from "../database.js";
+import { driver as neo4jDriver } from "../database.js";
 
 const createInventoryNode = async (inventory) => {
   const session = neo4jDriver.seession();
@@ -22,3 +22,4 @@ const createInventoryNode = async (inventory) => {
     await session.close();
   }
 };
+export { createInventoryNode };
