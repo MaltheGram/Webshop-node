@@ -2,10 +2,12 @@ import express from "express";
 import swaggerUi from "swagger-ui-express";
 import swaggerDocs from "./docs/swagger.json" assert { type: "json" };
 import connectDatabase from "./mongodb/database.js";
+import { verifyConnectivity } from "./neo4j/database.js";
 
 const app = express();
 const PORT = 3000;
 connectDatabase();
+verifyConnectivity()
 
 app.get("/", (req, res) => {
   res.send({ message: "Please go to /api-docs" });
@@ -21,7 +23,7 @@ import userRouterSQL from "./sql/routers/userRouter.js";
 
 app.use(userRouterSQL);
 app.use(orderRouterSQL);
-app.use(productRouterSQL)
+app.use(productRouterSQL);
 
 // MongoDB Routers
 import orderRouterMongo from "./mongodb/routers/orderRouter.js";
@@ -30,11 +32,11 @@ import userRouterMongo from "./mongodb/routers/userRouter.js";
 
 app.use(userRouterMongo);
 app.use(orderRouterMongo);
-app.use(productRouterMongo)
+app.use(productRouterMongo);
 
-// GraphQl Routers
-
-
+// Graph Routers
+import userRouter from "./neo4j/routers/userRotuer.js";
+app.use(userRouter);
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 

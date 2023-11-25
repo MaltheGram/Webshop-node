@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import { driver as neo4jDriver } from "../database.js";
 
 const createOrderNode = async (order) => {
@@ -11,7 +12,7 @@ const createOrderNode = async (order) => {
                 orderStatus: $orderStatus
             }) RETURN o`,
       {
-        id: order.id,
+        id: crypto.randomBytes(16).toString("hex"),
         orderStatus: order.orderStatus,
       },
     );

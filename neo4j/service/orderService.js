@@ -26,20 +26,4 @@ const createOrderWithRelationToUser = async (order, user) => {
   }
 };
 
-const user = {
-  id: "1",
-  firstName: "John",
-  lastName: "Doe",
-  email: "john.hello@example.com",
-  password: "password123",
-  phoneNumber: "1234567890",
-};
-
-const order = {
-  id: "1",
-  orderStatus: "order received",
-};
-
-createOrderWithRelationToUser(order, user).then(async (res) => {
-  console.log(res);
-});
+export { createOrderWithRelationToUser };

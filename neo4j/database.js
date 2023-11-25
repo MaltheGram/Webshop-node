@@ -12,8 +12,10 @@ const driver = neo4j.driver(
 
 // Create a new Driver instance
 
-await driver.verifyConnectivity().then(() => {
-  console.log("Connected to Neo4j");
-});
+const verifyConnectivity = async () => {
+  await driver.verifyConnectivity().then(() => {
+    console.log("Connected to Neo4j");
+  });
+};
 
-export { driver };
+export { driver, verifyConnectivity };
