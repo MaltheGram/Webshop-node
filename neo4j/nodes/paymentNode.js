@@ -1,7 +1,9 @@
-import { driver as neo4jDriver } from "../database.js";
 import crypto from "crypto";
+import { driver as neo4jDriver } from "../database.js";
 
 const createPaymentNode = async (payment) => {
+  const paymentId = crypto.randomBytes(16).toString("hex");
+
   const session = neo4jDriver.session();
   try {
     const result = await session.run(
@@ -11,9 +13,9 @@ const createPaymentNode = async (payment) => {
                 transactionNumber: $transactionNumber
             }) RETURN p`,
       {
-        id: crypto.randomBytes(16).toString("hex"),
+        id: paymentId,
         cardNumber: payment.cardNumber,
-        transactionNumber: payment.transactionNumber,
+        transactionNumber: Math.floor(Math.random() * 10000000000000000), // Simluate a transaction number
       },
     );
     return result.records[0].get("p").properties;

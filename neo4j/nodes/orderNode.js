@@ -1,27 +1,40 @@
 import crypto from "crypto";
-import { driver as neo4jDriver } from "../database.js";
 
-const createOrderNode = async (order) => {
-  const session = neo4jDriver.session();
-
+const createOrderNode = async (txc) => {
   try {
-    const result = await session.run(
-      `
-        CREATE (o:Order {
-                id: $id,
-                orderStatus: $orderStatus
-            }) RETURN o`,
+    const orderId = crypto.randomBytes(16).toString("hex");
+    const orderNumber = parseInt(crypto.randomBytes(4).toString("hex"), 16);
+
+    const result = await txc.run(
+      `CREATE (o:Order {id: $id, orderNumber: $orderNumber, orderStatus: $orderStatus}) RETURN o`,
       {
-        id: crypto.randomBytes(16).toString("hex"),
-        orderStatus: order.orderStatus,
+        id: orderId,
+        orderNumber: orderNumber,
+        orderStatus: "Order received",
       },
     );
-    return result.records;
+
+    return result.records[0].get("o");
   } catch (error) {
-    console.log(error);
-  } finally {
-    await session.close();
+    console.error("Error in createOrderNode:", error);
+    throw error; // Rethrow the error so it can be caught in the calling function
   }
 };
 
-export { createOrderNode };
+const addProductToOrder = async (txc, orderId, productId, quantity) => {
+  await txc.run(
+    `MATCH (o:Order {id: $orderId}), (p:Product {id: $productId})
+     CREATE (o)-[:CONTAINS {quantity: $quantity}]->(p)`,
+    { orderId, productId, quantity },
+  );
+};
+
+const linkOrderToUser = async (txc, userId, orderId) => {
+  await txc.run(
+    `MATCH (u:User {id: $userId}), (o:Order {id: $orderId})
+     CREATE (u)-[:HAS_ORDER]->(o)`,
+    { userId, orderId },
+  );
+};
+
+export { addProductToOrder, createOrderNode, linkOrderToUser };

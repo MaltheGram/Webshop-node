@@ -18,7 +18,6 @@ const createUserNode = async (user) => {
             phoneNumber: $phoneNumber
         }) RETURN u`,
       {
-        // TODO: How do we generate a unique id?
         id: crypto.randomBytes(16).toString("hex"),
         firstName: user.firstName,
         lastName: user.lastName,
@@ -116,6 +115,5 @@ export {
   deleteUserAndAddressNodes,
   getAllUsers,
   getUserByEmail,
-  updateUserNode
+  updateUserNode,
 };
-

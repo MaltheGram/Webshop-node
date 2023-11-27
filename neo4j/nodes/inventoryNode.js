@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import { driver as neo4jDriver } from "../database.js";
 
 const createInventoryNode = async (inventory) => {
@@ -11,7 +12,7 @@ const createInventoryNode = async (inventory) => {
                 quaintityInStock: $quantityInStock
                  }) RETURN i`,
       {
-        id: inventory.id,
+        id: crypto.randomBytes(16).toString("hex"),
         quantityInStock: inventory.quantityInStock,
       },
     );
@@ -22,4 +23,13 @@ const createInventoryNode = async (inventory) => {
     await session.close();
   }
 };
-export { createInventoryNode };
+
+const updateInventoryQuantity = async (txc, productId, quantity) => {
+  await txc.run(
+    `MATCH (p:Product {id: $productId})-[:STOCKED_IN]->(i:Inventory)
+       SET i.quantityInStock = i.quantityInStock - $quantity`,
+    { productId, quantity },
+  );
+};
+
+export { createInventoryNode, updateInventoryQuantity };

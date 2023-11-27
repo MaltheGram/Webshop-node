@@ -7,7 +7,7 @@ import { verifyConnectivity } from "./neo4j/database.js";
 const app = express();
 const PORT = 3000;
 connectDatabase();
-verifyConnectivity()
+verifyConnectivity();
 
 app.get("/", (req, res) => {
   res.send({ message: "Please go to /api-docs" });
@@ -35,8 +35,10 @@ app.use(orderRouterMongo);
 app.use(productRouterMongo);
 
 // Graph Routers
+import orderRouter from "./neo4j/routers/orderRouter.js";
 import userRouter from "./neo4j/routers/userRotuer.js";
 app.use(userRouter);
+app.use(orderRouter);
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
