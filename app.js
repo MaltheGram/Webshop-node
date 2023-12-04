@@ -18,12 +18,14 @@ app.use(express.json());
 
 // SQL Routers
 import orderRouterSQL from "./sql/routers/orderRouter.js";
+import paymentRouter from "./sql/routers/paymentRouter.js"
 import productRouterSQL from "./sql/routers/productRouter.js";
 import userRouterSQL from "./sql/routers/userRouter.js";
 
 app.use(userRouterSQL);
 app.use(orderRouterSQL);
 app.use(productRouterSQL);
+app.use(paymentRouter);
 
 // MongoDB Routers
 import orderRouterMongo from "./mongodb/routers/orderRouter.js";
