@@ -137,13 +137,43 @@ async function insertDummyData() {
   }
 }
 
+async function insertOrderLineItems() {
+  const MIN_ORDER_ID = 63;
+  const MAX_ORDER_ID = 5062;
+  const MIN_PRODUCT_ID = 517;
+  const MAX_PRODUCT_ID = 4995;
+
+  for (let orderId = MIN_ORDER_ID; orderId <= MAX_ORDER_ID; orderId++) {
+    const productId =
+      Math.floor(Math.random() * (MAX_PRODUCT_ID - MIN_PRODUCT_ID + 1)) +
+      MIN_PRODUCT_ID;
+    const quantity = Math.ceil(Math.random() * 10); // Random quantity between 1 and 10
+
+    await models.OrderLineItem.create({
+      orderId: orderId,
+      productId: productId,
+      quantity: quantity,
+    });
+  }
+}
+
 async function main() {
   await sequelize.sync({ force: true });
   await insertDummyData();
   process.exit();
 }
 
-main().catch((error) => {
+async function dummyOrderLineItems() {
+  await insertOrderLineItems();
+  process.exit();
+}
+
+/* main().catch((error) => {
   console.error("Main function error:", error);
+  process.exit(1);
+}); */
+
+dummyOrderLineItems().catch((error) => {
+  console.error("Order Line Items function error:", error);
   process.exit(1);
 });
