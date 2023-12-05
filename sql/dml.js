@@ -156,24 +156,36 @@ async function insertOrderLineItems() {
     });
   }
 }
+const insertPaymentDetails = async () => {
+  const MIN_ID = 33;
+  const MAX_ID = 2527;
+
+  const createPromises = [];
+
+  for (let id = MIN_ID; id <= MAX_ID; id++) {
+    const paymentId =
+      Math.floor(Math.random() * (MAX_ID - MIN_ID + 1)) + MIN_ID;
+    createPromises.push(
+      models.PaymentDetail.create({
+        paymentId: paymentId,
+        card_number: faker.finance.creditCardNumber(),
+        transaction_number: Math.floor(Math.random() * 1000000),
+      }),
+    );
+  }
+
+  // Execute all create operations concurrently
+  await Promise.all(createPromises);
+};
 
 async function main() {
-  await sequelize.sync({ force: true });
-  await insertDummyData();
-  process.exit();
+  try {
+    await insertPaymentDetails();
+    console.log("Payment details inserted successfully");
+  } catch (error) {
+    console.error("Main function error:", error);
+    process.exit(1);
+  }
 }
 
-async function dummyOrderLineItems() {
-  await insertOrderLineItems();
-  process.exit();
-}
-
-/* main().catch((error) => {
-  console.error("Main function error:", error);
-  process.exit(1);
-}); */
-
-dummyOrderLineItems().catch((error) => {
-  console.error("Order Line Items function error:", error);
-  process.exit(1);
-});
+main();
