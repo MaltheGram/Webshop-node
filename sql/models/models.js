@@ -118,7 +118,6 @@ Payment.init(
 class Order extends Model {}
 Order.init(
   {
-    date: DataTypes.DATE,
     userId: {
       type: DataTypes.INTEGER,
       references: {
