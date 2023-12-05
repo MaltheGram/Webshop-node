@@ -31,6 +31,15 @@ router.get(`${productsSql}/view`, async (req, res) => {
   }
 });
 
+router.get(`${productsSql}/sf_product_sold/:id`, async (req, res) => {
+  try {
+    const productSold = await ProductService.SFproductSold(req.params.id);
+    res.json(productSold);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 router.get(`${productsSql}/:id`, async (req, res) => {
   try {
     const product = (await ProductService.getProductById(req.params.id)) || {

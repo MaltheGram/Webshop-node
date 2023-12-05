@@ -15,7 +15,7 @@ router.get(`${usersSql}`, async (req, res) => {
   }
 });
 
-router.get(`${usersSql}/sp/:id`, async (req, res) => {
+router.get(`${usersSql}/sp_order/:id`, async (req, res) => {
   try {
     const ordersByUser = await UserService.SPgetOrders(req.params.id);
     res.json(ordersByUser[0]);
@@ -24,10 +24,19 @@ router.get(`${usersSql}/sp/:id`, async (req, res) => {
   }
 });
 
-router.get(`${usersSql}/sf/:id`, async (req, res) => {
+router.get(`${usersSql}/sp_payments/:id`, async (req, res) => {
+  try {
+    const paymentsByUser = await UserService.SPuserPayments(req.params.id);
+    res.json(paymentsByUser[0]);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get(`${usersSql}/sf_count/:id`, async (req, res) => {
   try {
     const count = await UserService.SFcountOrders(req.params.id);
-    
+
     res.json(count);
   } catch (error) {
     res.status(500).json({ error: error.message });

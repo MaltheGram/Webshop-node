@@ -57,6 +57,16 @@ class ProductService {
     );
     return view;
   };
+  static SFproductSold = async (id) => {
+    const view = await model.sequelize.query(
+      "SELECT GetProductSalesCount(:id) AS 'Product sales count'",
+      {
+        replacements: { id },
+        type: model.sequelize.QueryTypes.SELECT,
+      },
+    );
+    return view;
+  };
 }
 
 export default ProductService;

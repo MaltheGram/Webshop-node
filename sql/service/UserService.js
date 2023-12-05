@@ -110,6 +110,14 @@ class UserService {
     });
     return count;
   };
+
+  static SPuserPayments = async (id) => {
+    const payments = await model.sequelize.query("CALL user_payments(:id)", {
+      replacements: { id: id },
+      type: model.sequelize.QueryTypes.SELECT,
+    });
+    return payments;
+  };
 }
 
 export default UserService;
