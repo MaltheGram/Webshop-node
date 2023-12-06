@@ -2,7 +2,6 @@ import Joi from "joi";
 import mongoose from "mongoose";
 const { Schema } = mongoose;
 
-
 const productSchema = new Schema(
   {
     name: {
@@ -72,8 +71,6 @@ const orderSchema = new Schema(
 const validateOrder = (order) => {
   order.orderStatus = order.orderStatus || "Order received";
 
-  const objectIdPattern = /^[0-9a-fA-F]{24}$/; // Pattern for validating MongoDB ObjectId
-
   const schema = Joi.object({
     orderStatus: Joi.string()
       .valid("Order received", "In progress", "Order delivered", "Cancelled")
@@ -81,7 +78,7 @@ const validateOrder = (order) => {
     orderItems: Joi.array()
       .items(
         Joi.object({
-          id: Joi.string().pattern(objectIdPattern).required(),
+          id: Joi.string().required(),
           quantity: Joi.number().integer().min(1).required(),
         }),
       )
@@ -140,7 +137,6 @@ const userSchema = new Schema(
   },
 );
 const validateUser = (user) => {
-  const objectIdPattern = /^[0-9a-fA-F]{24}$/; // Pattern for validating MongoDB ObjectId
   const schema = Joi.object({
     firstName: Joi.string().required(),
     lastName: Joi.string().required(),
@@ -186,6 +182,7 @@ const validatePayment = (payment) => {
   const schema = Joi.object({
     transactionNumber: Joi.string().required(),
     cardNumber: Joi.string().creditCard().required(),
+    order: Joi.string().required(),
   });
 
   return schema.validate(payment);
@@ -197,12 +194,12 @@ const OrderModel = mongoose.model("Order", orderSchema);
 const PaymentModel = mongoose.model("Payment", paymentSchema);
 
 export {
-    OrderModel,
-    PaymentModel,
-    ProductModel,
-    UserModel,
-    validateOrder,
-    validatePayment,
-    validateProduct,
-    validateUser
+  OrderModel,
+  PaymentModel,
+  ProductModel,
+  UserModel,
+  validateOrder,
+  validatePayment,
+  validateProduct,
+  validateUser,
 };
