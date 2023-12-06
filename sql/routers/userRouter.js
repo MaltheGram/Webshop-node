@@ -93,4 +93,20 @@ router.delete(`${usersSql}/:id`, async (req, res) => {
   }
 });
 
+router.get("/api/sql/insecure", async (req, res) => {
+  const q = req.query.q;
+  if (q !== "SELECT * FROM USERS LIMIT 10;") {
+    return res.status(400).json({
+      Error:
+        "Invalid query. For demonstration purpose use: SELECT * FROM USERS LIMIT 10;",
+    });
+  }
+  try {
+    const insecureQuery = await UserService.insecureQuery(q);
+    res.json(insecureQuery);
+  } catch (error) {
+    res.status(500).json({ Error: error.message });
+  }
+});
+
 export default router;

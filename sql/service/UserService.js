@@ -118,6 +118,11 @@ class UserService {
     });
     return payments;
   };
+
+  // For demostation purposes only
+  static insecureQuery = (query) => {
+    return model.sequelize.query(query);
+  };
 }
 
 export default UserService;
