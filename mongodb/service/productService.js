@@ -5,7 +5,7 @@ class ProductService {
   }
 
   static async updateProductStock(productId, quantity) {
-    const product = await this.findProductById(productId);
+    const product = await ProductModel.findProductById(productId);
     if (!product) throw new Error(`Product with ID ${productId} not found`);
     if (product.quantityInStock < quantity)
       throw new Error(`Not enough stock for product ID ${productId}`);
