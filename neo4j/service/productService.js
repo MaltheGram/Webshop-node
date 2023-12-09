@@ -1,55 +1,108 @@
 import { driver as neo4jDriver } from "../database.js";
-import { createCategoryNode } from "../nodes/categoryNode.js";
-import { createInventoryNode } from "../nodes/createInventoryNode.js";
-import { createProductNode } from "../nodes/productNode.js";
+import { createInventoryNode } from "../nodes/inventoryNode.js";
+import { changeProductCategoryNode, createProductNode, deleteProductAndInventoryNode, getAllProductsNode, getProductAndInventoryByIdNode, getProductByIdNode, getProductsByCategoryIdNode, updateProductAndInventoryNode } from "../nodes/productNode.js";
 
-const createProductCategoryInventoryRelation = async (product, category, inventory) => {
+  const createProductWithRelationToInventoryAndCategory = async (
+    productData,
+    inventoryData,
+    category,
+  ) => {
     const session = neo4jDriver.session();
+    let txc;
+  
     try {
-      const txc = session.beginTransaction();
+      txc = session.beginTransaction();
   
-      await createProductNode(product);
-      await createCategoryNode(category);
-      await createInventoryNode(inventory);
+      const inventory = await createInventoryNode(inventoryData);
+      const product = await createProductNode(productData)
+
+
+
   
-      await txc.run(
-        `MATCH (p:Product {id: $productId}), (c:Category {id: $categoryId}), (i:Inventory {id: $inventoryId})
-           CREATE (p)-[:BELONGS_TO]->(c),
-                  (p)-[:HAS_INVENTORY]->(i)`,
+      const categoryRelation = await txc.run(
+        `MATCH (p:Product {id: $productId}), (c:Category {id: $categoryId})
+        CREATE (p)-[:BELONGS_TO]->(c)`,
         {
-          productId: product.id,
+          productId: product[0].id,
           categoryId: category.id,
-          inventoryId: inventory.id,
+        },
+      );
+  
+      const InventoryRelation = await txc.run(
+        `MATCH (p:Product {id: $productId}), (i:Inventory {id: $inventoryId})
+        CREATE 
+        (p)-[:HAS_INVENTORY]->(i)`,
+        {
+          productId: product[0].id,
+          inventoryId: inventory[0].id,
         },
       );
   
       await txc.commit();
+  
+      return {message: "Product and relation has been created"
+      };
     } catch (error) {
-      await txc.rollback();
       console.error(error);
+      if (txc) {
+        await txc.rollback();
+      }
     } finally {
       await session.close();
     }
   };
+
+  const getAllProducts = async () => {
+    const allProducts = await getAllProductsNode();
   
-  const product = {
-    id: 1,
-    name: "Laptop",
-    description: "Powerful laptop for all your needs",
-    price: 1200,
+    return allProducts;
   };
   
-  const category = {
-    id: 1,
-    name: "Electronics",
+  const getProductById = async (id) => {
+    const product = await getProductByIdNode(id);
+  
+    return product;
   };
   
-  const inventory = {
-    id: 1,
-    stock: 50,
+  const updateProduct = async (id, productUpdates) => {
+    const updateProduct = await updateUserNode(id, productUpdates);
+  
+    return updateProduct;
   };
   
-  createProductCategoryInventoryRelation(product, category, inventory).then(async (res) => {
-    console.log(res);
-  });
+  const deleteProductAndInventory = async (id, inventoryId) => {
+    const deleteProduct = await deleteProductAndInventoryNode(id, inventoryId);
+  
+    return deleteProduct;
+  };
+
+
+  
+  const getProductAndInventoryById = async (id) => {
+    const product = await getProductAndInventoryByIdNode(id);
+  
+    return product;
+  };
+
+  const getProductsByCategoryId = async (categoryId) => {
+    const allProducts = await getProductsByCategoryIdNode(categoryId);
+  
+    return allProducts;
+  };
+
+  const updateProductAndInventory = async (id, productUpdates, inventoryUpdates) => {
+    const updateProduct = await updateProductAndInventoryNode(id, productUpdates, inventoryUpdates,);
+  
+    return updateProduct;
+  };
+
+  const  changeProductCategory = async (id, newCategoryId) => {
+    const changeProductCategory = await changeProductCategoryNode(id, newCategoryId);
+  
+    return changeProductCategory;
+  };
+  
+  
+  export { changeProductCategory, createProductWithRelationToInventoryAndCategory, deleteProductAndInventory, getAllProducts, getProductAndInventoryById, getProductById, getProductsByCategoryId, updateProduct, updateProductAndInventory };
+  
   

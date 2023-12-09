@@ -1,5 +1,5 @@
 import { driver as neo4jDriver } from "../database.js";
-import { updateInventoryQuantity } from "../nodes/inventoryNode.js";
+import { updateInventoryNode } from "../nodes/inventoryNode.js";
 import {
   addProductToOrder,
   createOrderNode,
@@ -13,12 +13,12 @@ const createOrder = async (user, products) => {
   try {
     txc = session.beginTransaction();
 
-    const order = await createOrderNode(txc); // Ensure this function returns the order ID
+    const order = await createOrderNode(txc);
     const orderId = order.properties.id;
 
     for (const product of products) {
       await addProductToOrder(txc, orderId, product.id, product.quantity);
-      await updateInventoryQuantity(txc, product.id, product.quantity);
+      await updateInventoryNode(txc, product.id, product.quantity);
     }
 
     await linkOrderToUser(txc, user.id, orderId);
