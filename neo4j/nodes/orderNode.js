@@ -17,7 +17,7 @@ const createOrderNode = async (txc) => {
     return result.records[0].get("o");
   } catch (error) {
     console.error("Error in createOrderNode:", error);
-    throw error; // Rethrow the error so it can be caught in the calling function
+    throw error; 
   }
 };
 
