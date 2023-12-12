@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import { driver as neo4jDriver } from "../database.js";
 
 const createCategoryNode = async (category) => {
@@ -9,7 +10,7 @@ const createCategoryNode = async (category) => {
               name: $name
           }) RETURN c`,
         {
-          id: category.id,
+          id: crypto.randomBytes(16).toString("hex"),
           name: category.name,
         },
       );
@@ -20,4 +21,79 @@ const createCategoryNode = async (category) => {
       await session.close();
     }
   };
-  export { createCategoryNode };
+
+  
+  const updateCategoryNode = async (id, categoryUpdates) => {
+    const session = neo4jDriver.session();
+    try {
+      const result = await session.run(
+        `MATCH (c:Category {id: $id})
+         SET c.name = CASE WHEN $name IS NOT NULL THEN $quantity ELSE  c.name END
+         RETURN c`,
+        {
+          id,
+          name: categoryUpdates.name || null,
+        },
+      );
+  
+      return result.records[0].get("c").properties;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    } finally {
+      await session.close();
+    }
+  };
+  
+  
+  const getCategoryByIdNode = async (id) => {
+    const session = neo4jDriver.session();
+    try {
+      const result = await session.run(`MATCH (c:Category {id: $id}) RETURN c`, {
+        id: id,
+      });
+      return result;
+    } catch (error) {
+      console.error(error);
+    } finally {
+      await session.close();
+    }
+  };
+  
+
+
+  const deleteCategoryNode = async (id) => {
+    const session = neo4jDriver.session();
+    try {
+      const result = await session.run(
+        `MATCH (c:Category {id: $id})
+         DETACH DELETE c`,
+        {
+          id,
+        },
+      );
+  
+      return result.summary.query.parameters;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    } finally {
+      await session.close();
+    }
+  };
+  
+  const getAllCategoriesNode = async () => {
+    const session = neo4jDriver.session();
+    try {
+      const result = await session.run(`MATCH (c:Category) RETURN c`);
+      return result;
+    } catch (error) {
+      console.error(error);
+    } finally {
+      await session.close();
+    }
+  };
+
+
+  export { createCategoryNode, deleteCategoryNode, getAllCategoriesNode, getCategoryByIdNode, updateCategoryNode };
+

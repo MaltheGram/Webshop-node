@@ -47,10 +47,14 @@ app.use(productRouterMongo);
 app.use(paymentRouter);
 
 // Graph Routers
+import categoryRouter from "./neo4j/routers/categoryRouter.js";
 import orderRouter from "./neo4j/routers/orderRouter.js";
+import porductRouter from "./neo4j/routers/productRouter.js";
 import userRouter from "./neo4j/routers/userRotuer.js";
 app.use(userRouter);
 app.use(orderRouter);
+app.use(porductRouter);
+app.use(categoryRouter);
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
