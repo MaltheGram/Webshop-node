@@ -1,11 +1,19 @@
 import { Router } from "express";
-import OrderService from "../service/OrderService.js"
+import OrderService from "../service/OrderService.js";
 
 const router = Router();
 
-router.get("/orders", async (req, res) => {
+const orders = "/api/orders/sql";
+
+router.get(`${orders}`, async (req, res) => {
+  const { limit } = req.query;
+  let defaultLimit = 0
+
+  limit ? defaultLimit = limit : defaultLimit = 0
+  
+  
   try {
-    const orders = await OrderService.getAll();
+    const orders = await OrderService.getAll(limit);
     res.status(200).json(orders);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -13,7 +21,7 @@ router.get("/orders", async (req, res) => {
 });
 
 // Get an order by its ID
-router.get("/orders/:id", async (req, res) => {
+router.get(`${orders}/:id`, async (req, res) => {
   try {
     const order = await OrderService.getById(req.params.id);
     if (order) {
@@ -26,8 +34,9 @@ router.get("/orders/:id", async (req, res) => {
   }
 });
 
-// Update an order by its ID (PUT)
-router.put("/orders/:id", async (req, res) => {
+// Update an order by its ID (PUT) 
+// Is used to pay an order
+router.put(`${orders}/:id`, async (req, res) => {
   try {
     const updatedOrder = await OrderService.update(req.params.id, req.body);
     res.status(200).json(updatedOrder);
@@ -37,7 +46,7 @@ router.put("/orders/:id", async (req, res) => {
 });
 
 // Delete an order by its ID
-router.delete("/orders/:id", async (req, res) => {
+router.delete(`${orders}/:id`, async (req, res) => {
   try {
     await OrderService.delete(req.params.id);
 
@@ -47,7 +56,7 @@ router.delete("/orders/:id", async (req, res) => {
   }
 });
 
-router.post("/orders", async (req, res) => {
+router.post(`${orders}`, async (req, res) => {
   try {
     const body = req.body;
     const userId = req.body.userId;

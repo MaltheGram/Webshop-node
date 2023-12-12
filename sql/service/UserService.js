@@ -7,8 +7,10 @@ class UserService {
     constructor() {
     }
 
-    static getAll = async () => {
-        return await model.User.findAll()
+    static getAll = async (limit) => {
+        return await model.User.findAll({
+          limit: Number(limit)
+        })
     }
     static getById = async (id) => {
         return await model.User.findByPk(id)
@@ -36,7 +38,7 @@ class UserService {
           const userId = user.id;
     
           const addressParams = {
-            ...params.Address,
+            ...params.address,
             userId: userId,
           };
     

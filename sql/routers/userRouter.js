@@ -7,8 +7,12 @@ const router = Router();
 const usersSql = "/api/users/sql";
 
 router.get(`${usersSql}`, async (req, res) => {
+  const { limit } = req.query;
+  let defaultLimit = 0;
+
+  limit ? (defaultLimit = parseInt(limit)) : (defaultLimit = 0);
   try {
-    const users = await UserService.getAll();
+    const users = await UserService.getAll(limit);
     res.json(users);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -29,7 +33,7 @@ router.get(`${usersSql}/:id`, async (req, res) => {
 router.post(`${usersSql}`, async (req, res) => {
   try {
     await UserService.create(req.body);
-    res.status(200).json({ message: "User created in MySQL."});
+    res.status(200).json({ message: "User created in MySQL." });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -41,12 +45,11 @@ router.post(`${usersSql}/signin`, async (req, res) => {
 
     const user = await UserService.signin(email, password);
 
-    res.json({ message: 'Sign-in successful', user });
+    res.json({ message: "Sign-in successful", user });
   } catch (error) {
     res.status(401).json({ error: error.message });
   }
 });
-
 
 router.put(`${usersSql}/:id`, async (req, res) => {
   try {

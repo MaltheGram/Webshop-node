@@ -7,19 +7,21 @@ const productsMongo = "/api/products/mongo";
 
 // Get all products by category
 router.get(`${productsMongo}/category/:category`, async (req, res) => {
-    const category = req.params.category;
-  
-    try {
-      const products = await ProductModel.find({ category: category });
-      if (products.length === 0) {
-        return res.status(404).send({ message: `No products found in category: ${category}` });
-      }
-      res.status(200).json({ data: products });
-    } catch (error) {
-      res.status(500).json({ error: error.message });
+  const category = req.params.category;
+
+  try {
+    const products = await ProductModel.find({ category: category });
+    if (products.length === 0) {
+      return res
+        .status(404)
+        .send({ message: `No products found in category: ${category}` });
     }
-  });
-  
+    res.status(200).json({ data: products });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Create a new product
 router.post(`${productsMongo}`, async (req, res) => {
   const { error } = validateProduct(req.body);
@@ -38,8 +40,13 @@ router.post(`${productsMongo}`, async (req, res) => {
 
 // Get all products
 router.get(`${productsMongo}`, async (req, res) => {
+  const { limit } = req.query;
+  let defaultLimit = 0
+
+  limit ? defaultLimit = parseInt(limit) : defaultLimit = 0
+
   try {
-    const products = await ProductModel.find();
+    const products = await ProductModel.find().limit(defaultLimit);
     res.status(200).json({ data: products });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -61,16 +68,11 @@ router.get(`${productsMongo}/:id`, async (req, res) => {
 
 // Update a product by ID
 router.put(`${productsMongo}/:id`, async (req, res) => {
-  const { error } = validateProduct(req.body);
-  if (error) {
-    return res.status(400).send({ validationError: error.details[0].message });
-  }
-
   try {
     const product = await ProductModel.findByIdAndUpdate(
       req.params.id,
       req.body,
-      { new: true }
+      { new: true },
     );
 
     if (!product) {
