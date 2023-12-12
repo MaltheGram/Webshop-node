@@ -9,14 +9,14 @@ const createInventoryNode = async (inventory) => {
       `
             CREATE (i:Inventory {
                 id: $id, 
-                quaintityInStock: $quantityInStock
+                quantityInStock: $quantityInStock
                  }) RETURN i`,
       {
         id: crypto.randomBytes(16).toString("hex"),
         quantityInStock: inventory.quantityInStock,
       },
     );
-    return result.records.map(record => record.get('i').properties);
+    return result.records.map((record) => record.get("i").properties);
   } catch (error) {
     console.log(error);
   } finally {
@@ -24,16 +24,57 @@ const createInventoryNode = async (inventory) => {
   }
 };
 
-const updateInventoryNode = async (id, quantityInStock) => {
-  const session = neo4jDriver.session();
+const updateInventoryNodeByProductId = async (
+  txc,
+  productId,
+  quantityToDeduct,
+) => {
   try {
-    const result = await session.run(
-      `MATCH (i:Inventory {id: $id})
-       SET i.quantityInStock = CASE WHEN $quantityInStock IS NOT NULL THEN $quantityInStock ELSE  i.quantity END
+    const result = await txc.run(
+      `MATCH (p:Product {id: $productId})-[:STOCKED_IN]->(i:Inventory)
+       SET i.quantityInStock = i.quantityInStock - $quantityToDeduct
        RETURN i`,
       {
-        id,
+        productId: productId,
+        quantityToDeduct: quantityToDeduct,
+      },
+    );
+
+    return result.records[0];
+  } catch (error) {
+    console.error("Error in updateInventoryNode:", error);
+    throw error;
+  }
+};
+
+const updateInventoryNode = async (txc, id, quantityInStock) => {
+  try {
+    const result = await txc.run(
+      `MATCH (i:Inventory {id: $id})
+       SET i.quantityInStock = CASE WHEN $quantityInStock IS NOT NULL THEN $quantityInStock ELSE i.quantityInStock END
+       RETURN i`,
+      {
+        id: id,
         quantityInStock: quantityInStock || null,
+      },
+    );
+
+    return result;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+const getInvetoryByProductId = async (productId) => {
+  const session = neo4jDriver.session();
+
+  try {
+    const result = await session.run(
+      `MATCH (p:Product {id: $productId})-[:STOCKED_IN]->(i:Inventory)
+       RETURN i`,
+      {
+        productId: productId,
       },
     );
 
@@ -46,13 +87,15 @@ const updateInventoryNode = async (id, quantityInStock) => {
   }
 };
 
-
 const getInventoryByIdNode = async (id) => {
   const session = neo4jDriver.session();
   try {
-    const inventory = await session.run(`MATCH (i:Inventory {id: $id}) RETURN i`, {
-      id: id,
-    });
+    const inventory = await session.run(
+      `MATCH (i:Inventory {id: $id}) RETURN i`,
+      {
+        id: id,
+      },
+    );
     return inventory;
   } catch (error) {
     console.error(error);
@@ -61,5 +104,10 @@ const getInventoryByIdNode = async (id) => {
   }
 };
 
-export { createInventoryNode, getInventoryByIdNode, updateInventoryNode };
-
+export {
+  createInventoryNode,
+  getInventoryByIdNode,
+  getInvetoryByProductId,
+  updateInventoryNode,
+  updateInventoryNodeByProductId,
+};

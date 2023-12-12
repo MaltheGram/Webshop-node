@@ -24,7 +24,6 @@ const createPaymentWithRelationToOrderAndUser = async (
         paymentId: payment.id,
       },
     );
-    console.log(userRelation);
 
     const orderRelation = await txc.run(
       `MATCH (o:Order {id: $orderId}), (p:Payment {id: $paymentId})

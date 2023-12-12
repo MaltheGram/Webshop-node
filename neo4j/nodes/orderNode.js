@@ -17,24 +17,46 @@ const createOrderNode = async (txc) => {
     return result.records[0].get("o");
   } catch (error) {
     console.error("Error in createOrderNode:", error);
-    throw error; 
+    throw error;
   }
 };
 
 const addProductToOrder = async (txc, orderId, productId, quantity) => {
-  await txc.run(
+  const addToOrder = await txc.run(
     `MATCH (o:Order {id: $orderId}), (p:Product {id: $productId})
-     CREATE (o)-[:CONTAINS {quantity: $quantity}]->(p)`,
+     CREATE (o)-[:CONTAINS {quantity: $quantity}]->(p) RETURN o`,
     { orderId, productId, quantity },
   );
+  if (addToOrder) {
+    return true;
+  } else {
+    return false;
+  }
 };
 
 const linkOrderToUser = async (txc, userId, orderId) => {
-  await txc.run(
+  const linkedUser = await txc.run(
     `MATCH (u:User {id: $userId}), (o:Order {id: $orderId})
-     CREATE (u)-[:HAS_ORDER]->(o)`,
+     CREATE (u)-[:HAS_ORDER]->(o) RETURN u`,
     { userId, orderId },
   );
+  if (linkedUser) {
+    return true;
+  } else {
+    return false;
+  }
 };
 
-export { addProductToOrder, createOrderNode, linkOrderToUser };
+const deleteOrderNode = async (txc, orderId) => {
+  const deletedOrder = await txc.run(
+    `MATCH (o:Order {id: $orderId}) DETACH DELETE o RETURN o`,
+    { orderId },
+  );
+  if (deletedOrder) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
+export { addProductToOrder, createOrderNode, deleteOrderNode, linkOrderToUser };

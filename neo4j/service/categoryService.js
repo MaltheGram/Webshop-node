@@ -1,12 +1,25 @@
-import { createCategoryNode } from "../nodes/categoryNode.js";
-
+import {
+  createCategoryNode,
+  getAllCategoriesNode,
+  getCategoryByIdNode
+} from "../nodes/categoryNode.js";
 
 const createCategory = async (category) => {
-    const createCategory = await createCategoryNode(category);
-  
-    return createCategory;
-  };
+  const createCategory = await createCategoryNode(category);
 
-export { createCategory };
+  return createCategory;
+};
 
+const getAllCategories = async () => {
+  const getAllCategories = await getAllCategoriesNode();
 
+  return getAllCategories;
+};
+
+const getCategoryById = async (id) => {
+  const getCategoryById = await getCategoryByIdNode(id);
+
+  return getCategoryById;
+}
+
+export { createCategory, getAllCategories, getCategoryByIdNode };

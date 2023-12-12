@@ -1,7 +1,6 @@
 import crypto from "crypto";
 import { driver as neo4jDriver } from "../database.js";
 
-
 const createProductNode = async (product) => {
   const session = neo4jDriver.session();
   try {
@@ -19,7 +18,7 @@ const createProductNode = async (product) => {
         price: product.price,
       },
     );
-    return  result.records.map(record => record.get('p').properties);
+    return result.records.map((record) => record.get("p").properties);
   } catch (error) {
     console.log(error);
   } finally {
@@ -44,7 +43,7 @@ const updateProductNode = async (id, productUpdates) => {
       },
     );
 
-    return result.records.map(record => record.get('p').properties);
+    return result.records.map((record) => record.get("p").properties);
   } catch (error) {
     console.error(error);
     throw error;
@@ -53,14 +52,13 @@ const updateProductNode = async (id, productUpdates) => {
   }
 };
 
-
 const getProductByIdNode = async (id) => {
   const session = neo4jDriver.session();
   try {
     const result = await session.run(`MATCH (p:Product {id: $id}) RETURN p`, {
       id: id,
     });
-    return result.records.map(record => record.get('p').properties);;
+    return result.records.map((record) => record.get("p").properties);
   } catch (error) {
     console.error(error);
   } finally {
@@ -68,17 +66,22 @@ const getProductByIdNode = async (id) => {
   }
 };
 
-const getProductAndInventoryByIdNode = async (id) => {
+const getProductDetailsById = async (id) => {
   const session = neo4jDriver.session();
   try {
     const result = await session.run(
-      `MATCH (p:Product {id: $id})-[:HAS_INVENTORY]->(i:Inventory)
-       RETURN p, i`,
-      { id }
+      `MATCH (p:Product {id: $id})-[:STOCKED_IN]->(i:Inventory)
+       MATCH (p)-[:BELONGS_TO]->(c:Category)
+       RETURN p, i, c.name AS categoryName`,
+      { id },
     );
-    const product = result.records.map(record => record.get('p').properties);
-    const inventory = result.records.map(record => record.get('i').properties);
-    return { product, inventory };
+
+    const category = result.records[0].get("categoryName");
+    const product = result.records.map((record) => record.get("p").properties);
+    const inventory = result.records.map(
+      (record) => record.get("i").properties,
+    );
+    return { product, inventory, category };
   } catch (error) {
     console.error(error);
   } finally {
@@ -115,11 +118,10 @@ const getProductsByCategoryIdNode = async (categoryId) => {
       `MATCH (p:Product)-[:BELONGS_TO]->(c:Category)
       WHERE c.id = $categoryId
       RETURN p`,
-      { categoryId: categoryId }
+      { categoryId: categoryId },
     );
 
-    console.log(result.records.map(record => record.get('p').properties))
-    return result.records.map(record => record.get('p').properties);
+    return result.records.map((record) => record.get("p").properties);
   } catch (error) {
     console.error(error);
     throw error;
@@ -132,7 +134,7 @@ const getAllProductsNode = async () => {
   const session = neo4jDriver.session();
   try {
     const result = await session.run(`MATCH (p:Product) RETURN p`);
-    return result.records.map(record => record.get('p').properties);
+    return result.records.map((record) => record.get("p").properties);
   } catch (error) {
     console.error(error);
   } finally {
@@ -140,37 +142,44 @@ const getAllProductsNode = async () => {
   }
 };
 
-const updateProductAndInventoryNode = async (id, productUpdates, inventoryUpdates) => {
+const updateProductAndInventoryNode = async (
+  id,
+  productUpdates,
+  inventoryUpdates,
+) => {
   const session = neo4jDriver.session();
   try {
     let productResult, inventoryResult;
 
     if (productUpdates) {
-       productResult = await session.run(
+      productResult = await session.run(
         `MATCH (p:Product {id: $id})
         SET p.name = CASE WHEN $name IS NOT NULL THEN $name ELSE  p.name END
         SET p.price = CASE WHEN $price IS NOT NULL THEN $price ELSE  p.price END
         SET p.description = CASE WHEN $description IS NOT NULL THEN $description ELSE  p.description END
         RETURN p`,
-       {
-         id,
-         name: productUpdates.name || null,
-         price: productUpdates.price || null,
-         description: productUpdates.description || null,
-       },
-     );
+        {
+          id,
+          name: productUpdates.name || null,
+          price: productUpdates.price || null,
+          description: productUpdates.description || null,
+        },
+      );
     }
-
     if (inventoryUpdates) {
       inventoryResult = await session.run(
-        `MATCH (i:Inventory {id: $id})
-        SET i.quantityInStock = CASE WHEN $quantityInStock IS NOT NULL THEN $quantityInStock ELSE  i.quantityInStock END
-        RETURN i`,
-       {
-         id,
-         quantityInStock: inventoryUpdates.quantityInStock || null,
-       },
-     );
+        `MATCH (p:Product {id: $productId})-[:STOCKED_IN]->(i:Inventory)
+         SET i.quantityInStock = CASE WHEN $quantityInStock IS NULL THEN i.quantityInStock ELSE $quantityInStock END
+         RETURN i`,
+        {
+          productId: id,
+          // Explicitly check for undefined or null
+          quantityInStock:
+            inventoryUpdates.quantityInStock !== undefined
+              ? inventoryUpdates.quantityInStock
+              : null,
+        },
+      );
     }
 
     return {
@@ -194,7 +203,7 @@ const changeProductCategoryNode = async (productId, newCategoryId) => {
     await txc.run(
       `MATCH (p:Product {id: $productId})-[r:BELONGS_TO]->(:Category)
        DELETE r`,
-      { productId }
+      { productId },
     );
 
     const result = await txc.run(
@@ -203,13 +212,13 @@ const changeProductCategoryNode = async (productId, newCategoryId) => {
        RETURN p, c`,
       {
         productId,
-        newCategoryId
-      }
+        newCategoryId,
+      },
     );
 
     await txc.commit();
 
-    return result.records.map(record => ({
+    return result.records.map((record) => ({
       product: record.get("p").properties,
       category: record.get("c").properties,
     }));
@@ -224,7 +233,14 @@ const changeProductCategoryNode = async (productId, newCategoryId) => {
   }
 };
 
-
-
-export { changeProductCategoryNode, createProductNode, deleteProductAndInventoryNode, getAllProductsNode, getProductAndInventoryByIdNode, getProductByIdNode, getProductsByCategoryIdNode, updateProductAndInventoryNode, updateProductNode };
-
+export {
+  changeProductCategoryNode,
+  createProductNode,
+  deleteProductAndInventoryNode,
+  getAllProductsNode,
+  getProductByIdNode,
+  getProductDetailsById,
+  getProductsByCategoryIdNode,
+  updateProductAndInventoryNode,
+  updateProductNode,
+};

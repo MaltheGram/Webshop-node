@@ -13,9 +13,8 @@ const usersgraph = "/api/users/graph";
 router.get(`${usersgraph}`, async (req, res) => {
   try {
     const users = await getUsers();
-    res
-      .status(200)
-      .json({ users: users.records.map((user) => user.get("u").properties) });
+
+    res.status(200).json({ users: users });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: error });
@@ -28,10 +27,10 @@ router.get(`${usersgraph}/:email`, async (req, res) => {
   try {
     const user = await getSingleUserByEmail(email);
 
-    if (!user.records[0]) {
+    if (user.length === 0) {
       return res.status(404).json({ error: "User not found" });
     }
-    res.status(200).json({ user: user.records[0]?.get("u").properties });
+    res.status(200).json({ user: user });
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: error });
@@ -40,8 +39,7 @@ router.get(`${usersgraph}/:email`, async (req, res) => {
 
 router.put(`${usersgraph}/:email`, async (req, res) => {
   const email = req.params.email;
-  const user = req.body.user;
-
+  const user = req.body;
   try {
     const result = await updateUser(email, user);
     res.status(200).json({ result: result });
@@ -52,7 +50,7 @@ router.put(`${usersgraph}/:email`, async (req, res) => {
 });
 
 router.post(`${usersgraph}`, async (req, res) => {
-  const user = req.body.user;
+  const user = req.body;
   const address = req.body.address;
 
   try {
@@ -64,14 +62,13 @@ router.post(`${usersgraph}`, async (req, res) => {
   }
 });
 
-router.delete(`${usersgraph}/:email`, async (req, res) => {
+router.delete(`${usersgraph}/:email/:addressId`, async (req, res) => {
   const email = req.params.email;
-  const addressId = req.body.addressId; // TODO: Should this be in req.body or req.params?
-
+  const addressId = req.params.addressId;
   try {
     const result = await deleteUserAndAddress(email, addressId);
     res.status(200).json({
-      result: `Deleted user with ${email} and relating address: ${addressId}`,
+      result: `Deleted user with ${email} and relating address id: ${addressId}`,
     });
   } catch (error) {
     console.log(error);
