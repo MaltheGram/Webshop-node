@@ -59,4 +59,9 @@ const deleteOrderNode = async (txc, orderId) => {
   }
 };
 
-export { addProductToOrder, createOrderNode, deleteOrderNode, linkOrderToUser };
+export {
+  addProductToOrder,
+  createOrderNode,
+  deleteOrderNode,
+  linkOrderToUser,
+};

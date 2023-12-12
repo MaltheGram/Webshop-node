@@ -13,7 +13,7 @@ const createInventoryNode = async (inventory) => {
                  }) RETURN i`,
       {
         id: crypto.randomBytes(16).toString("hex"),
-        quantityInStock: inventory.quantityInStock,
+        quantityInStock: Number(inventory.quantityInStock),
       },
     );
     return result.records.map((record) => record.get("i").properties);
