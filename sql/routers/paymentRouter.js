@@ -3,10 +3,17 @@ import isNumber from "../middleware/idIsNumber.js";
 import PaymentService from "../service/PaymentService.js";
 
 const router = express.Router();
+
+const payments = "/api/payments/sql";
 // Get all payments
-router.get("/payments", async (req, res) => {
+router.get(`${payments}`, async (req, res) => {
+  const { limit } = req.query;
+  let defaultLimit = 0;
+
+  limit ? defaultLimit = limit : defaultLimit = 0
+
   try {
-    const payments = await PaymentService.getAllPayments();
+    const payments = await PaymentService.getAllPayments(limit);
     res.json(payments);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -14,7 +21,7 @@ router.get("/payments", async (req, res) => {
 });
 // Get a payment by id
 
-router.get("/payments/:id", isNumber("id"), async (req, res) => {
+router.get(`${payments}/:id`, async (req, res) => {
   try {
     const payment = await PaymentService.getPaymentById(req.params.id);
     if (!payment) return res.status(404).json({ error: "Payment not found" });
@@ -24,15 +31,14 @@ router.get("/payments/:id", isNumber("id"), async (req, res) => {
   }
 });
 // Get all payments of a user
-router.get("/payments/user/:userId", isNumber("userId"), async (req, res) => {
+router.get(`${payments}user/:userId`, async (req, res) => {
   try {
     const payments = await PaymentService.getPaymentsForUser(req.params.userId);
     res.json(payments);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-});
-
+  
 // Calls stored procedure to retrieve all relevant data for a payment
 router.get("/payments/sp/:userId", isNumber("userId"), async (req, res) => {
   try {
@@ -43,7 +49,7 @@ router.get("/payments/sp/:userId", isNumber("userId"), async (req, res) => {
   }
 });
 // Create a payment
-router.post("/payments", async (req, res) => {
+router.post(`${payments}`, async (req, res) => {
   try {
     const payment = await PaymentService.createPayment(req.body);
     res.status(201).json(payment);
@@ -52,7 +58,7 @@ router.post("/payments", async (req, res) => {
   }
 });
 // Update a payment
-router.put("/payments/:id", isNumber("id"),async (req, res) => {
+router.put(`${payments}:id`, async (req, res) => {
   try {
     const updatedPayment = await PaymentService.updatePayment(
       req.params.id,
@@ -66,7 +72,7 @@ router.put("/payments/:id", isNumber("id"),async (req, res) => {
   }
 });
 // Delete a payment
-router.delete("/payments/:id", isNumber("id"), async (req, res) => {
+router.delete(`${payments}:/id`, async (req, res) => {
   try {
     const result = await PaymentService.deletePayment(req.params.id);
     if (!result) return res.status(404).json({ error: "Payment not found" });

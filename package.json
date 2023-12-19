@@ -18,7 +18,7 @@
     "joi": "^17.11.0",
     "joi-objectid": "^4.0.2",
     "mongodb": "^6.3.0",
-    "mongoose": "^8.0.1",
+    "mongoose": "^8.0.2",
     "mysql": "^2.18.1",
     "mysql2": "^3.6.2",
     "neo4j-driver": "^5.14.0",
@@ -29,5 +29,8 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "@faker-js/faker": "^8.3.1"
+  }
 }

@@ -3,9 +3,11 @@ import model, { sequelize } from "../models/models.js";
 class OrderService {
   constructor() {}
 
-  static getAll = async () => {
+
+  static getAll = async (limit) => {
     try {
       const orders = await model.Order.findAll({
+        limit: Number(limit),
         include: [
           {
             model: model.OrderLineItem,
@@ -35,6 +37,7 @@ class OrderService {
         {
           model: model.OrderStatus,
           as: "statusDetails",
+
           attributes: [], // Exclude the object itself
         },
       ],
@@ -44,6 +47,10 @@ class OrderService {
           [sequelize.col("statusDetails.name"), "orderStatus"],
         ],
       },
+
+          attributes: ["name"],
+        },
+      ],
     });
   };
 
@@ -83,13 +90,11 @@ class OrderService {
         const inventory = await model.Inventory.findOne({
           productId: product.id,
         });
+        await model.Inventory.update(
+          { stock: inventory.stock - (product.quantity || params.quantity) },
+          { where: { productId: product.productId } },
+        );
 
-        await model.Inventory.update({
-          where: {
-            productId: inventory.id,
-          },
-          stock: (inventory.stock -= product.quantity || params.quantity),
-        });
       }
       await transaction.commit();
     } catch (error) {

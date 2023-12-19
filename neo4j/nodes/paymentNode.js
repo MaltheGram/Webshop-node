@@ -15,7 +15,7 @@ const createPaymentNode = async (payment) => {
       {
         id: paymentId,
         cardNumber: payment.cardNumber,
-        transactionNumber: Math.floor(Math.random() * 10000000000000000), // Simluate a transaction number
+        transactionNumber: Math.floor(Math.random() * 10000000000000000),
       },
     );
     return result.records[0].get("p").properties;

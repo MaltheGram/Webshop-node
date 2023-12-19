@@ -46,6 +46,10 @@ Product.init(
         key: "id",
       },
     },
+    isDeleted: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false, // Set default value to false
+    },
   },
   { sequelize, modelName: "product" },
 );
@@ -118,7 +122,6 @@ Payment.init(
 class Order extends Model {}
 Order.init(
   {
-    date: DataTypes.DATE,
     userId: {
       type: DataTypes.INTEGER,
       references: {

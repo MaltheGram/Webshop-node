@@ -6,8 +6,14 @@ const router = Router();
 const productsSql = "/api/products/sql";
 
 router.get(`${productsSql}`, async (req, res) => {
+
+  const { limit } = req.query;
+  let defaultLimit = 0;
+
+  limit ? (defaultLimit = limit) : (defaultLimit = 0);
+
   try {
-    const products = await ProductService.getAllProducts();
+    const products = await ProductService.getAllProducts(limit);
     res.json(products);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -25,10 +31,12 @@ router.get(`${productsSql}/view`, async (req, res) => {
 
   try {
     const products = await ProductService.viewProduct(limit, skip);
+
     res.json(products);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+
 });
 
 router.get(`${productsSql}/sf_product_sold/:id`, async (req, res) => {

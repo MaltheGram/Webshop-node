@@ -3,8 +3,10 @@ import model from "../models/models.js";
 class ProductService {
   constructor() {}
 
-  static getAllProducts = async () => {
-    return await model.Product.findAll();
+  static getAllProducts = async (limit) => {
+    return await model.Product.findAll({
+      limit: Number(limit),
+    });
   };
 
   static getProductById = async (id) => {
@@ -16,6 +18,7 @@ class ProductService {
   };
 
   static createProduct = async (params) => {
+
     const transaction = await model.sequelize.transaction();
     try {
       const product = await model.Product.create(params, { transaction });
@@ -44,6 +47,7 @@ class ProductService {
   static deleteProduct = async (id) => {
     const product = await model.Product.findByPk(id);
     if (!product) return null;
+
     return await product.destroy();
   };
 
@@ -66,6 +70,7 @@ class ProductService {
       },
     );
     return view;
+
   };
 }
 

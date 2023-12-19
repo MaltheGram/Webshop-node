@@ -7,8 +7,12 @@ const router = Router();
 const usersSql = "/api/users/sql";
 
 router.get(`${usersSql}`, async (req, res) => {
+  const { limit } = req.query;
+  let defaultLimit = 0;
+
+  limit ? (defaultLimit = parseInt(limit)) : (defaultLimit = 0);
   try {
-    const users = await UserService.getAll();
+    const users = await UserService.getAll(limit);
     res.json(users);
   } catch (error) {
     res.status(500).json({ error: error.message });

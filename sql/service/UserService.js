@@ -3,51 +3,50 @@ import model from "../models/models.js";
 
 class UserService {
   constructor() {}
-
-  static getAll = async () => {
-    return await model.User.findAll();
-  };
-  static getById = async (id) => {
-    return await model.User.findByPk(id);
-  };
-  static create = async (params) => {
-    console.log("Received Params:", params);
-
-    const existingUser = await model.User.findOne({
-      where: {
-        email: params.email,
-      },
-    });
-
-    if (existingUser) {
-      throw new Error("Email already exists");
+  
+    static getAll = async (limit) => {
+        return await model.User.findAll({
+          limit: Number(limit)
+        })
     }
-    const hashedPassword = await bcrypt.hash(params.password, 10);
-    const transaction = await model.sequelize.transaction();
-    try {
-      const user = await model.User.create(
-        {
-          ...params,
-          password: hashedPassword,
-        },
-        { transaction },
-      );
-
-      const userId = user.id;
-
-      const addressParams = {
-        ...params.Address,
-        userId: userId,
-      };
-
-      await model.Address.create(addressParams, { transaction });
-
-      await transaction.commit();
-    } catch (error) {
-      await transaction.rollback();
-      throw error;
+    static getById = async (id) => {
+        return await model.User.findByPk(id)
     }
-  };
+    static create = async (params) => {
+        console.log('Received Params:', params);
+    
+        const existingUser = await model.User.findOne({
+          where: {
+            email: params.email,
+          },
+        });
+    
+        if (existingUser) {
+          throw new Error('Email already exists');
+        }
+        const hashedPassword = await bcrypt.hash(params.password, 10);
+        const transaction = await model.sequelize.transaction();
+        try {
+          const user = await model.User.create({
+            ...params,
+            password: hashedPassword,
+          }, { transaction });
+    
+          const userId = user.id;
+    
+          const addressParams = {
+            ...params.address,
+            userId: userId,
+          };
+    
+          await model.Address.create(addressParams, { transaction });
+    
+          await transaction.commit();
+        } catch (error) {
+          await transaction.rollback();
+          throw error;
+        }
+      }
 
   static signin = async (email, password) => {
     const user = await model.User.findOne({
