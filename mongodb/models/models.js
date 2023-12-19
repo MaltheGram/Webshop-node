@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 const { Schema } = mongoose;
 Joi.objectId = joiObjectid(Joi);
 
+
 const productSchema = new Schema(
   {
     name: {
@@ -73,8 +74,6 @@ const orderSchema = new Schema(
 const validateOrder = (order) => {
   order.orderStatus = order.orderStatus || "Order received";
 
-  const objectIdPattern = /^[0-9a-fA-F]{24}$/; // Pattern for validating MongoDB ObjectId
-
   const schema = Joi.object({
     orderStatus: Joi.string()
       .valid("Order received", "In progress", "Order delivered", "Cancelled")
@@ -141,7 +140,6 @@ const userSchema = new Schema(
   },
 );
 const validateUser = (user) => {
-  const objectIdPattern = /^[0-9a-fA-F]{24}$/; // Pattern for validating MongoDB ObjectId
   const schema = Joi.object({
     firstName: Joi.string().required(),
     lastName: Joi.string().required(),
