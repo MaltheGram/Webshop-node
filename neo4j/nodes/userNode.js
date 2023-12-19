@@ -88,7 +88,8 @@ const deleteUserAndAddressNodes = async (email, addressId) => {
 const getAllUsers = async () => {
   const session = neo4jDriver.session();
   try {
-    const users = await session.run(`MATCH (u:User) RETURN u`);
+    const users = await session.run(`
+    Match (u:User)-[LIVES_AT]->(a:Address) RETURN u,a `);
     return users;
   } catch (error) {
     console.error(error);
@@ -100,7 +101,7 @@ const getAllUsers = async () => {
 const getUserByEmail = async (email) => {
   const session = neo4jDriver.session();
   try {
-    const user = await session.run(`MATCH (u:User {email: $email}) RETURN u`, {
+    const user = await session.run(`MATCH (u:User {email: $email})-[LIVES_AT]->(a:Address) RETURN u, a`, {
       email: email,
     });
     return user;

@@ -1,11 +1,24 @@
 import { Router } from "express";
-import { createOrder } from "../service/orderService.js";
+import {
+  createOrder,
+  deleteOrder,
+  getOrders,
+} from "../service/orderService.js";
 import { createPaymentWithRelationToOrderAndUser } from "../service/paymentService.js";
 const router = Router();
 
 const ordersgraph = "/api/orders/graph";
 
-router.get(`${ordersgraph}`, async (req, res) => {});
+router.get(`${ordersgraph}`, async (req, res) => {
+  try {
+    const orders = await getOrders();
+
+    res.status(200).json({ orders: orders });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: error });
+  }
+});
 
 router.put(`${ordersgraph}/:id`, async (req, res) => {
   const order = {
@@ -36,6 +49,17 @@ router.post(`${ordersgraph}`, async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: error.message });
+  }
+});
+
+router.delete(`${ordersgraph}/:id`, async (req, res) => {
+  try {
+    const result = await deleteOrder(req.params.id);
+
+    res.status(200).json({ result: result });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: error });
   }
 });
 

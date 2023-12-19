@@ -10,9 +10,10 @@ import {
 
 const createUserAndAddressWithRelation = async (user, address) => {
   const session = neo4jDriver.session();
+  let txc;
   try {
     // Begin transaction
-    const txc = session.beginTransaction();
+    txc = session.beginTransaction();
 
     await createUserNode(user);
     await createAddressNode(address);
@@ -42,15 +43,27 @@ const createUserAndAddressWithRelation = async (user, address) => {
 };
 
 const getUsers = async () => {
-  const allUsers = await getAllUsers();w
+  const allUsers = await getAllUsers();
 
-  return allUsers;
+  const formattedUsers = allUsers.records.map((record) => {
+    const user = record.get("u").properties;
+    const address = record.get("a").properties;
+    return { ...user, address };
+  });
+
+  return formattedUsers;
 };
 
 const getSingleUserByEmail = async (email) => {
   const user = await getUserByEmail(email);
 
-  return user;
+  const formattedUser = user.records.map((record) => {
+    const user = record.get("u").properties;
+    const address = record.get("a").properties;
+    return { ...user, address };
+  });
+
+  return formattedUser;
 };
 
 const updateUser = async (email, userUpdates) => {
@@ -68,7 +81,7 @@ const deleteUserAndAddress = async (email, addressId) => {
 export {
   createUserAndAddressWithRelation,
   deleteUserAndAddress,
-  getUsers,
   getSingleUserByEmail,
+  getUsers,
   updateUser,
 };

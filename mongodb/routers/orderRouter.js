@@ -23,6 +23,17 @@ router.get(`${ordersMongo}`, async (req, res) => {
   }
 });
 
+router.get(`${ordersMongo}/:orderId`, async (req, res) => {
+  try {
+    const order = await OrderModel.findById(req.params.orderId);
+    if (!order) return res.status(404).send("Order not found");
+
+    res.status(200).json({ data: order });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 router.post(`${ordersMongo}/:userId`, async (req, res) => {
   const { error } = validateOrder(req.body);
   if (error)
@@ -38,6 +49,7 @@ router.post(`${ordersMongo}/:userId`, async (req, res) => {
 
       const { description, price, imageUrl, category } = product.toObject();
       orderItems.push({
+        _id: item.id,
         description,
         price,
         imageUrl,

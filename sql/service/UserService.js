@@ -1,14 +1,13 @@
-import bcrypt from 'bcrypt';
+import bcrypt from "bcrypt";
 import model from "../models/models.js";
 
 class UserService {
-
-
-    constructor() {
-    }
-
-    static getAll = async () => {
-        return await model.User.findAll()
+  constructor() {}
+  
+    static getAll = async (limit) => {
+        return await model.User.findAll({
+          limit: Number(limit)
+        })
     }
     static getById = async (id) => {
         return await model.User.findByPk(id)
@@ -36,7 +35,7 @@ class UserService {
           const userId = user.id;
     
           const addressParams = {
-            ...params.Address,
+            ...params.address,
             userId: userId,
           };
     
@@ -49,57 +48,80 @@ class UserService {
         }
       }
 
-      static signin = async (email, password) => {
-        const user = await model.User.findOne({
-          where: {
-            email: email,
-          },
-        });
-    
-        if (!user) {
-          throw new Error('User or password incorrect');
-        }
+  static signin = async (email, password) => {
+    const user = await model.User.findOne({
+      where: {
+        email: email,
+      },
+    });
 
-        const passwordMatch = await bcrypt.compare(password, user.password);
-    
-        if (!passwordMatch) {
-          throw new Error('User or password incorrect');
-        }
-        return {
-          id: user.id,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-          phone_number: user.phone_number,
-        };
-      };
-
-    static update = async (userId, updateData) => {
-        try {
-            const user = await model.User.findByPk(userId);
-            if (!user) {
-                throw new Error('User not found');
-            }
-
-            return user.update(updateData);
-
-        } catch (error) {
-            throw error;
-        }
+    if (!user) {
+      throw new Error("User or password incorrect");
     }
 
-    static delete = async (id) => {
-        try {
-            return await model.User.destroy({where: {id: id}})
+    const passwordMatch = await bcrypt.compare(password, user.password);
 
-        } catch (err) {
-            throw err
-        }
-
+    if (!passwordMatch) {
+      throw new Error("User or password incorrect");
     }
+    return {
+      id: user.id,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      phone_number: user.phone_number,
+    };
+  };
+
+  static update = async (userId, updateData) => {
+    try {
+      const user = await model.User.findByPk(userId);
+      if (!user) {
+        throw new Error("User not found");
+      }
+
+      return user.update(updateData);
+    } catch (error) {
+      throw error;
+    }
+  };
+
+  static delete = async (id) => {
+    try {
+      return await model.User.destroy({ where: { id: id } });
+    } catch (err) {
+      throw err;
+    }
+  };
+
+  static SPgetOrders = async (id) => {
+    const orders = await model.sequelize.query("CALL GetOrdersByUserId(:id)", {
+      replacements: { id: id },
+      type: model.sequelize.QueryTypes.SELECT,
+    });
+    return orders;
+  };
+
+  static SFcountOrders = async (id) => {
+    const count = await model.sequelize.query("SELECT orders_pr_user(:id)", {
+      replacements: { id: id },
+      type: model.sequelize.QueryTypes.SELECT,
+    });
+    return count;
+  };
+
+  static SPuserPayments = async (id) => {
+    const payments = await model.sequelize.query("CALL user_payments(:id)", {
+      replacements: { id: id },
+      type: model.sequelize.QueryTypes.SELECT,
+    });
+    return payments;
+  };
+
+  // For demostation purposes only
+  static insecureQuery = (query) => {
+    return model.sequelize.query(query);
+  };
 }
 
-
-export default UserService
-
-
+export default UserService;

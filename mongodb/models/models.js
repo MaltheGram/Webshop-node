@@ -1,6 +1,9 @@
 import Joi from "joi";
+import joiObjectid from "joi-objectid";
 import mongoose from "mongoose";
 const { Schema } = mongoose;
+Joi.objectId = joiObjectid(Joi);
+
 
 const productSchema = new Schema(
   {
@@ -78,7 +81,7 @@ const validateOrder = (order) => {
     orderItems: Joi.array()
       .items(
         Joi.object({
-          id: Joi.string().required(),
+          id: Joi.objectId.required(),
           quantity: Joi.number().integer().min(1).required(),
         }),
       )
@@ -181,8 +184,8 @@ const paymentSchema = new Schema(
 const validatePayment = (payment) => {
   const schema = Joi.object({
     transactionNumber: Joi.string().required(),
-    cardNumber: Joi.string().creditCard().required(),
-    order: Joi.string().required(),
+    cardNumber: Joi.string().required(),
+    order: Joi.objectId(),
   });
 
   return schema.validate(payment);
