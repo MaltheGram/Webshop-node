@@ -1,6 +1,4 @@
 import express from "express";
-import swaggerUi from "swagger-ui-express";
-import swaggerDocs from "./docs/swagger.json" assert { type: "json" };
 import connectDatabase from "./mongodb/database.js";
 import { verifyConnectivity } from "./neo4j/database.js";
 
@@ -35,7 +33,6 @@ app.use(inventoryRouter);
 app.use(paymentDetailsRouter);
 app.use(paymentRouterSQL);
 
-
 // MongoDB Routers
 import orderRouterMongo from "./mongodb/routers/orderRouter.js";
 import paymentRouter from "./mongodb/routers/paymentRouter.js";
@@ -56,8 +53,6 @@ app.use(userRouterGraph);
 app.use(orderRouterGraph);
 app.use(porductRouterGraph);
 app.use(categoryRouterGraph);
-
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 app.listen(PORT, () => {
   console.log(`Server started on http://localhost:${PORT}`);
