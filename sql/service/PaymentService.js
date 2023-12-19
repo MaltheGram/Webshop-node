@@ -1,6 +1,7 @@
 import model from "../models/models.js";
 
 class PaymentService {
+
   static getAllPayments = async (limit) => {
     return await model.Payment.findAll({
       limit: Number(limit),
@@ -32,6 +33,12 @@ class PaymentService {
     if (!payment) return null;
     return await payment.destroy();
   };
-}
+
+  static spUserPayments = async (userId) => {
+    return await model.sequelize.query("CALL user_payments(:userId)", {
+      replacements: { userId: userId },
+      type: model.sequelize.QueryTypes.SELECT,
+    });
+  };
 
 export default PaymentService;

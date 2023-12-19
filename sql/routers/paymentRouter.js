@@ -1,11 +1,11 @@
 import express from "express";
+import isNumber from "../middleware/idIsNumber.js";
 import PaymentService from "../service/PaymentService.js";
 
 const router = express.Router();
 
 const payments = "/api/payments/sql";
 // Get all payments
-
 router.get(`${payments}`, async (req, res) => {
   const { limit } = req.query;
   let defaultLimit = 0;
@@ -34,6 +34,15 @@ router.get(`${payments}/:id`, async (req, res) => {
 router.get(`${payments}user/:userId`, async (req, res) => {
   try {
     const payments = await PaymentService.getPaymentsForUser(req.params.userId);
+    res.json(payments);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+  
+// Calls stored procedure to retrieve all relevant data for a payment
+router.get("/payments/sp/:userId", isNumber("userId"), async (req, res) => {
+  try {
+    const payments = await PaymentService.spUserPayments(req.params.userId);
     res.json(payments);
   } catch (err) {
     res.status(500).json({ error: err.message });

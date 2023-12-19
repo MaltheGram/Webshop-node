@@ -3,6 +3,7 @@ import model, { sequelize } from "../models/models.js";
 class OrderService {
   constructor() {}
 
+
   static getAll = async (limit) => {
     try {
       const orders = await model.Order.findAll({
@@ -26,7 +27,6 @@ class OrderService {
       throw error;
     }
   };
-
   static getById = async (id) => {
     return await model.Order.findByPk(id, {
       include: [
@@ -37,6 +37,17 @@ class OrderService {
         {
           model: model.OrderStatus,
           as: "statusDetails",
+
+          attributes: [], // Exclude the object itself
+        },
+      ],
+      attributes: {
+        include: [
+          // Include the 'name' field from the 'OrderStatus' association directly
+          [sequelize.col("statusDetails.name"), "orderStatus"],
+        ],
+      },
+
           attributes: ["name"],
         },
       ],
@@ -79,11 +90,11 @@ class OrderService {
         const inventory = await model.Inventory.findOne({
           productId: product.id,
         });
-
         await model.Inventory.update(
           { stock: inventory.stock - (product.quantity || params.quantity) },
           { where: { productId: product.productId } },
         );
+
       }
       await transaction.commit();
     } catch (error) {

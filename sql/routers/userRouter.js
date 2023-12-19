@@ -19,6 +19,34 @@ router.get(`${usersSql}`, async (req, res) => {
   }
 });
 
+router.get(`${usersSql}/sp_order/:id`, async (req, res) => {
+  try {
+    const ordersByUser = await UserService.SPgetOrders(req.params.id);
+    res.json(ordersByUser[0]);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get(`${usersSql}/sp_payments/:id`, async (req, res) => {
+  try {
+    const paymentsByUser = await UserService.SPuserPayments(req.params.id);
+    res.json(paymentsByUser[0]);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get(`${usersSql}/sf_count/:id`, async (req, res) => {
+  try {
+    const count = await UserService.SFcountOrders(req.params.id);
+
+    res.json(count);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 router.get(`${usersSql}/:id`, async (req, res) => {
   try {
     const user = (await UserService.getById(req.params.id)) || {
@@ -66,6 +94,22 @@ router.delete(`${usersSql}/:id`, async (req, res) => {
     res.json({ message: `MySQL user deleted.` });
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+});
+
+router.get("/api/sql/insecure", async (req, res) => {
+  const q = req.query.q;
+  if (q !== "SELECT * FROM USERS LIMIT 10;") {
+    return res.status(400).json({
+      Error:
+        "Invalid query. For demonstration purpose use: SELECT * FROM USERS LIMIT 10;",
+    });
+  }
+  try {
+    const insecureQuery = await UserService.insecureQuery(q);
+    res.json(insecureQuery);
+  } catch (error) {
+    res.status(500).json({ Error: error.message });
   }
 });
 
