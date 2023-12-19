@@ -48,9 +48,6 @@ class OrderService {
         ],
       },
 
-          attributes: ["name"],
-        },
-      ],
     });
   };
 

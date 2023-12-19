@@ -40,5 +40,5 @@ class PaymentService {
       type: model.sequelize.QueryTypes.SELECT,
     });
   };
-
+}
 export default PaymentService;

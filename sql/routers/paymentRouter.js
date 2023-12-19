@@ -38,6 +38,7 @@ router.get(`${payments}user/:userId`, async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+});
   
 // Calls stored procedure to retrieve all relevant data for a payment
 router.get("/payments/sp/:userId", isNumber("userId"), async (req, res) => {
